@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	cf_http "github.com/cloudfoundry-incubator/cf-http"
+	"github.com/cloudfoundry-incubator/cf_http"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
