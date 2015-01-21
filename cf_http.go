@@ -1,6 +1,7 @@
 package cf_http
 
 import (
+	"net"
 	"net/http"
 	"time"
 )
@@ -18,5 +19,15 @@ func Initialize(timeout time.Duration) {
 func NewClient() *http.Client {
 	return &http.Client{
 		Timeout: config.Timeout,
+	}
+}
+
+func NewStreamingClient() *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				KeepAlive: 10 * time.Second,
+			}).Dial,
+		},
 	}
 }
