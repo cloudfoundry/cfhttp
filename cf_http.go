@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -44,7 +45,7 @@ func newClient(dialTimeout, keepAliveTimeout, timeout time.Duration) *http.Clien
 func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 	tlsCert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load keypair: %s", err.Error())
 	}
 
 	tlsConfig := &tls.Config{
@@ -52,12 +53,12 @@ func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 		InsecureSkipVerify: false,
 	}
 
-	certBytes, err := ioutil.ReadFile(caCertFile)
-	if err != nil {
-		return nil, err
-	}
-
 	if caCertFile != "" {
+		certBytes, err := ioutil.ReadFile(caCertFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed read ca cert file: %s", err.Error())
+		}
+
 		caCertPool := x509.NewCertPool()
 		if ok := caCertPool.AppendCertsFromPEM(certBytes); !ok {
 			return nil, errors.New("Unable to load caCert")
