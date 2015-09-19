@@ -51,6 +51,7 @@ func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 	tlsConfig := &tls.Config{
 		Certificates:       []tls.Certificate{tlsCert},
 		InsecureSkipVerify: false,
+		ClientAuth:         tls.RequireAndVerifyClientCert,
 	}
 
 	if caCertFile != "" {
@@ -64,6 +65,7 @@ func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 			return nil, errors.New("Unable to load caCert")
 		}
 		tlsConfig.RootCAs = caCertPool
+		tlsConfig.ClientCAs = caCertPool
 	}
 
 	return tlsConfig, nil
