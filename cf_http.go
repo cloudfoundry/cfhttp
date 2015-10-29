@@ -26,6 +26,10 @@ func NewClient() *http.Client {
 	return newClient(5*time.Second, 0*time.Second, time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))))
 }
 
+func NewCustomTimeoutClient(customTimeout time.Duration) *http.Client {
+	return newClient(5*time.Second, 0*time.Second, customTimeout)
+}
+
 func NewStreamingClient() *http.Client {
 	return newClient(5*time.Second, 30*time.Second, 0*time.Second)
 }
