@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
+
+	"github.com/cloudfoundry-incubator/cf_http/unix_transport"
 )
 
 var config Config
@@ -24,6 +26,17 @@ func Initialize(timeout time.Duration) {
 
 func NewClient() *http.Client {
 	return newClient(5*time.Second, 0*time.Second, time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))))
+}
+
+func NewUnixClient(socketPath string) *http.Client {
+	return &http.Client{
+		Transport: unix_transport.NewWithDial(socketPath,
+			(&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 0 * time.Second,
+			}).Dial),
+		Timeout: time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))),
+	}
 }
 
 func NewCustomTimeoutClient(customTimeout time.Duration) *http.Client {

@@ -31,6 +31,15 @@ var _ = Describe("CfHttp", func() {
 		})
 	})
 
+	Describe("NewUnixClient", func() {
+		It("returns an http client", func() {
+			client := cf_http.NewUnixClient("socketPath")
+			Expect(client.Timeout).To(Equal(timeout))
+			transport := client.Transport.(*http.Transport)
+			Expect(transport.Dial).NotTo(BeNil())
+		})
+	})
+
 	Describe("NewCustomTimeoutClient", func() {
 		It("returns an http client with specified timeout", func() {
 			client := cf_http.NewCustomTimeoutClient(5 * time.Second)
