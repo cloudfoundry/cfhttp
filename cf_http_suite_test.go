@@ -1,4 +1,4 @@
-package cf_http_test
+package cfhttp_test
 
 import (
 	. "github.com/onsi/ginkgo"

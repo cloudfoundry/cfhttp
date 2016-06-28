@@ -1,4 +1,4 @@
-package cf_http
+package cfhttp
 
 import (
 	"crypto/tls"
@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cloudfoundry-incubator/cf_http/unix_transport"
+	"code.cloudfoundry.org/cfhttp/unix_transport"
 )
 
 var config Config

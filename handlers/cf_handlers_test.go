@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	. "github.com/cloudfoundry-incubator/cf_http/handlers"
+	. "code.cloudfoundry.org/cfhttp/handlers"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

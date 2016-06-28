@@ -1,10 +1,10 @@
-package cf_http_test
+package cfhttp_test
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/cloudfoundry-incubator/cf_http"
+	"code.cloudfoundry.org/cfhttp"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -18,12 +18,12 @@ var _ = Describe("CfHttp", func() {
 	})
 
 	JustBeforeEach(func() {
-		cf_http.Initialize(timeout)
+		cfhttp.Initialize(timeout)
 	})
 
 	Describe("NewClient", func() {
 		It("returns an http client", func() {
-			client := cf_http.NewClient()
+			client := cfhttp.NewClient()
 			Expect(client.Timeout).To(Equal(timeout))
 			transport := client.Transport.(*http.Transport)
 			Expect(transport.Dial).NotTo(BeNil())
@@ -33,7 +33,7 @@ var _ = Describe("CfHttp", func() {
 
 	Describe("NewUnixClient", func() {
 		It("returns an http client", func() {
-			client := cf_http.NewUnixClient("socketPath")
+			client := cfhttp.NewUnixClient("socketPath")
 			Expect(client.Timeout).To(Equal(timeout))
 			transport := client.Transport.(*http.Transport)
 			Expect(transport.Dial).NotTo(BeNil())
@@ -42,7 +42,7 @@ var _ = Describe("CfHttp", func() {
 
 	Describe("NewCustomTimeoutClient", func() {
 		It("returns an http client with specified timeout", func() {
-			client := cf_http.NewCustomTimeoutClient(5 * time.Second)
+			client := cfhttp.NewCustomTimeoutClient(5 * time.Second)
 			Expect(client.Timeout).To(Equal(5 * time.Second))
 			transport := client.Transport.(*http.Transport)
 			Expect(transport.Dial).NotTo(BeNil())
@@ -52,7 +52,7 @@ var _ = Describe("CfHttp", func() {
 
 	Describe("NewStreamingClient", func() {
 		It("returns an http client", func() {
-			client := cf_http.NewStreamingClient()
+			client := cfhttp.NewStreamingClient()
 			Expect(client.Timeout).To(BeZero())
 			transport := client.Transport.(*http.Transport)
 			Expect(transport.Dial).NotTo(BeNil())
