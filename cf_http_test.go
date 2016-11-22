@@ -1,6 +1,7 @@
 package cfhttp_test
 
 import (
+	"crypto/tls"
 	"net/http"
 	"time"
 
@@ -57,6 +58,28 @@ var _ = Describe("CfHttp", func() {
 			transport := client.Transport.(*http.Transport)
 			Expect(transport.Dial).NotTo(BeNil())
 			Expect(transport.DisableKeepAlives).To(BeFalse())
+		})
+	})
+
+	Describe("NewTLSConfig", func() {
+		var certFixture, keyFixture, caCertFixture string
+
+		BeforeEach(func() {
+			certFixture = "fixtures/cert.crt"
+			keyFixture = "fixtures/key.key"
+			caCertFixture = "fixtures/cacert.crt"
+		})
+
+		It("requires TLS Version 1.2", func() {
+			tlsConfig, err := cfhttp.NewTLSConfig(certFixture, keyFixture, caCertFixture)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(tlsConfig.MinVersion).To(BeEquivalentTo(tls.VersionTLS12))
+		})
+
+		It("requires certain cipher suites", func() {
+			tlsConfig, err := cfhttp.NewTLSConfig(certFixture, keyFixture, caCertFixture)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(tlsConfig.CipherSuites).To(Equal(cfhttp.SUPPORTED_CIPHER_SUITES))
 		})
 	})
 })

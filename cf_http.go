@@ -14,6 +14,11 @@ import (
 	"code.cloudfoundry.org/cfhttp/unix_transport"
 )
 
+var SUPPORTED_CIPHER_SUITES = []uint16{
+	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+}
+
 var config Config
 
 type Config struct {
@@ -69,6 +74,8 @@ func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 		Certificates:       []tls.Certificate{tlsCert},
 		InsecureSkipVerify: false,
 		ClientAuth:         tls.RequireAndVerifyClientCert,
+		CipherSuites:       SUPPORTED_CIPHER_SUITES,
+		MinVersion:         tls.VersionTLS12,
 	}
 
 	if caCertFile != "" {
