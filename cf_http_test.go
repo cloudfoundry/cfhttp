@@ -2,6 +2,7 @@ package cfhttp_test
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"net/http"
 	"time"
 
@@ -80,6 +81,25 @@ var _ = Describe("CfHttp", func() {
 			tlsConfig, err := cfhttp.NewTLSConfig(certFixture, keyFixture, caCertFixture)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(tlsConfig.CipherSuites).To(Equal(cfhttp.SUPPORTED_CIPHER_SUITES))
+		})
+	})
+
+	Describe("NewTLSConfigWithCertPool", func() {
+		var certFixture, keyFixture, caCertFixture string
+		var caCertPool *x509.CertPool
+
+		BeforeEach(func() {
+			certFixture = "fixtures/cert.crt"
+			keyFixture = "fixtures/key.key"
+			caCertFixture = "fixtures/cacert.crt"
+			caCertPool = x509.NewCertPool()
+		})
+
+		It("sets the Root and Client CAs", func() {
+			tlsConfig, err := cfhttp.NewTLSConfigWithCertPool(certFixture, keyFixture, caCertFixture, caCertPool)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(tlsConfig.RootCAs).To(Equal(caCertPool))
+			Expect(tlsConfig.ClientCAs).To(Equal(caCertPool))
 		})
 	})
 })

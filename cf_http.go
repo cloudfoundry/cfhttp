@@ -65,6 +65,11 @@ func newClient(dialTimeout, keepAliveTimeout, timeout time.Duration) *http.Clien
 }
 
 func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
+	caCertPool := x509.NewCertPool()
+	return NewTLSConfigWithCertPool(certFile, keyFile, caCertFile, caCertPool)
+}
+
+func NewTLSConfigWithCertPool(certFile, keyFile, caCertFile string, caCertPool *x509.CertPool) (*tls.Config, error) {
 	tlsCert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load keypair: %s", err.Error())
@@ -84,7 +89,6 @@ func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 			return nil, fmt.Errorf("failed read ca cert file: %s", err.Error())
 		}
 
-		caCertPool := x509.NewCertPool()
 		if ok := caCertPool.AppendCertsFromPEM(certBytes); !ok {
 			return nil, errors.New("Unable to load caCert")
 		}
