@@ -85,21 +85,25 @@ var _ = Describe("CfHttp", func() {
 	})
 
 	Describe("NewTLSConfigWithCertPool", func() {
-		var certFixture, keyFixture, caCertFixture string
+		var certFixture, keyFixture string
 		var caCertPool *x509.CertPool
 
 		BeforeEach(func() {
 			certFixture = "fixtures/cert.crt"
 			keyFixture = "fixtures/key.key"
-			caCertFixture = "fixtures/cacert.crt"
 			caCertPool = x509.NewCertPool()
 		})
 
 		It("sets the Root and Client CAs", func() {
-			tlsConfig, err := cfhttp.NewTLSConfigWithCertPool(certFixture, keyFixture, caCertFixture, caCertPool)
+			tlsConfig, err := cfhttp.NewTLSConfigWithCertPool(certFixture, keyFixture, caCertPool)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(tlsConfig.RootCAs).To(Equal(caCertPool))
 			Expect(tlsConfig.ClientCAs).To(Equal(caCertPool))
+		})
+
+		It("should error when the caCert is nil", func() {
+			_, err := cfhttp.NewTLSConfigWithCertPool(certFixture, keyFixture, nil)
+			Expect(err).To(HaveOccurred())
 		})
 	})
 })

@@ -66,10 +66,20 @@ func newClient(dialTimeout, keepAliveTimeout, timeout time.Duration) *http.Clien
 
 func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 	caCertPool := x509.NewCertPool()
-	return NewTLSConfigWithCertPool(certFile, keyFile, caCertFile, caCertPool)
+	if caCertFile != "" {
+		certBytes, err := ioutil.ReadFile(caCertFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed read ca cert file: %s", err.Error())
+		}
+
+		if ok := caCertPool.AppendCertsFromPEM(certBytes); !ok {
+			return nil, errors.New("Unable to load caCert")
+		}
+	}
+	return NewTLSConfigWithCertPool(certFile, keyFile, caCertPool)
 }
 
-func NewTLSConfigWithCertPool(certFile, keyFile, caCertFile string, caCertPool *x509.CertPool) (*tls.Config, error) {
+func NewTLSConfigWithCertPool(certFile, keyFile string, caCertPool *x509.CertPool) (*tls.Config, error) {
 	tlsCert, err := tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load keypair: %s", err.Error())
@@ -83,18 +93,12 @@ func NewTLSConfigWithCertPool(certFile, keyFile, caCertFile string, caCertPool *
 		MinVersion:         tls.VersionTLS12,
 	}
 
-	if caCertFile != "" {
-		certBytes, err := ioutil.ReadFile(caCertFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed read ca cert file: %s", err.Error())
-		}
-
-		if ok := caCertPool.AppendCertsFromPEM(certBytes); !ok {
-			return nil, errors.New("Unable to load caCert")
-		}
-		tlsConfig.RootCAs = caCertPool
-		tlsConfig.ClientCAs = caCertPool
+	if caCertPool == nil {
+		return nil, fmt.Errorf("CaCertPool is nil")
 	}
+
+	tlsConfig.RootCAs = caCertPool
+	tlsConfig.ClientCAs = caCertPool
 
 	return tlsConfig, nil
 }
