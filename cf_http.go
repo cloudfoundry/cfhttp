@@ -30,7 +30,7 @@ func Initialize(timeout time.Duration) {
 }
 
 func NewClient() *http.Client {
-	return newClient(5*time.Second, 0*time.Second, time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))))
+	return newClient(5*time.Second, 0*time.Second, 90*time.Second, time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))))
 }
 
 func NewUnixClient(socketPath string) *http.Client {
@@ -45,20 +45,21 @@ func NewUnixClient(socketPath string) *http.Client {
 }
 
 func NewCustomTimeoutClient(customTimeout time.Duration) *http.Client {
-	return newClient(5*time.Second, 0*time.Second, customTimeout)
+	return newClient(5*time.Second, 0*time.Second, 90*time.Second, customTimeout)
 }
 
 func NewStreamingClient() *http.Client {
-	return newClient(5*time.Second, 30*time.Second, 0*time.Second)
+	return newClient(5*time.Second, 30*time.Second, 90*time.Second, 0*time.Second)
 }
 
-func newClient(dialTimeout, keepAliveTimeout, timeout time.Duration) *http.Client {
+func newClient(dialTimeout, keepAliveTimeout, idleConnTimeout, timeout time.Duration) *http.Client {
 	return &http.Client{
 		Transport: &http.Transport{
-			Dial: (&net.Dialer{
+			DialContext: (&net.Dialer{
 				Timeout:   dialTimeout,
 				KeepAlive: keepAliveTimeout,
-			}).Dial,
+			}).DialContext,
+			IdleConnTimeout: idleConnTimeout,
 		},
 		Timeout: timeout,
 	}
