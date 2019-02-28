@@ -61,7 +61,7 @@ var _ = Describe("NewClient", func() {
 	Describe(`with the "WithDialTimeout" option`, func() {
 		It("returns an HTTP client with a custom DialTimeout", func() {
 			client := cfhttp.NewClient(cfhttp.WithDialTimeout(1 * time.Nanosecond))
-			_, err := client.Get(server.URL())
+			_, err := client.Get("https://google.com")
 			Expect(err).To(HaveOccurred())
 		})
 	})
