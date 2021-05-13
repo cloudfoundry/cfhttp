@@ -26,3 +26,8 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    - name: Test cfhttp v2
+      working-directory: v2
+      run: go test -v ./...
+
