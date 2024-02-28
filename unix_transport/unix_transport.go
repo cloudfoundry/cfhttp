@@ -33,7 +33,6 @@ func NewWithDial(socketPath string, dial DialFunc) *http.Transport {
 
 type UnixRoundTripper struct {
 	path      string
-	conn      httputil.ClientConn
 	useTls    bool
 	tlsConfig *tls.Config
 }
