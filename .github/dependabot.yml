@@ -6,3 +6,9 @@ updates:
       interval: "weekly"
     labels:
       - "dependencies"
+  - package-ecosystem: "gomod"
+    directory: "/v2"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
