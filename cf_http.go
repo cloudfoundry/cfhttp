@@ -5,9 +5,9 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"sync/atomic"
 	"time"
 
@@ -75,7 +75,7 @@ func newClient(dialTimeout, keepAliveTimeout, idleConnTimeout, timeout time.Dura
 func NewTLSConfig(certFile, keyFile, caCertFile string) (*tls.Config, error) {
 	caCertPool := x509.NewCertPool()
 	if caCertFile != "" {
-		certBytes, err := ioutil.ReadFile(caCertFile)
+		certBytes, err := os.ReadFile(caCertFile)
 		if err != nil {
 			return nil, fmt.Errorf("failed read ca cert file: %s", err.Error())
 		}
