@@ -27,7 +27,7 @@ var _ = Describe("cf_http handlers", func() {
 				var structure Response
 				structure.Key = "val"
 				WriteJSONResponse(w, 200, structure)
-				Expect(w.HeaderMap["Content-Length"]).To(Equal([]string{"13"}))
+				Expect(w.Result().Header["Content-Length"]).To(Equal([]string{"13"}))
 				Expect(w.Body.String()).To(Equal("{\"key\":\"val\"}"))
 				Expect(w.Code).To(Equal(200))
 			})

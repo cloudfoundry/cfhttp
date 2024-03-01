@@ -3,14 +3,13 @@ package unix_transport
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"runtime"
 	"strings"
 
-	"github.com/nu7hatch/gouuid"
+	uuid "github.com/nu7hatch/gouuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
@@ -76,7 +75,7 @@ var _ = Describe("Unix transport", func() {
 			})
 
 			It("responds with correct body", func() {
-				bytes, err := ioutil.ReadAll(resp.Body)
+				bytes, err := io.ReadAll(resp.Body)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(bytes)).To(Equal("true"))
 			})
@@ -89,7 +88,7 @@ var _ = Describe("Unix transport", func() {
 			)
 
 			assertBodyEquals := func(body io.ReadCloser, expectedContent string) {
-				bytes, err := ioutil.ReadAll(body)
+				bytes, err := io.ReadAll(body)
 				Expect(err).NotTo(HaveOccurred())
 				Expect(string(bytes)).To(Equal(expectedContent))
 

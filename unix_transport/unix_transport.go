@@ -2,7 +2,6 @@ package unix_transport
 
 import (
 	"crypto/tls"
-	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -34,7 +33,6 @@ func NewWithDial(socketPath string, dial DialFunc) *http.Transport {
 
 type UnixRoundTripper struct {
 	path      string
-	conn      httputil.ClientConn
 	useTls    bool
 	tlsConfig *tls.Config
 }
@@ -61,9 +59,6 @@ func (roundTripper UnixRoundTripper) RoundTrip(req *http.Request) (*http.Respons
 		conn, err = tls.Dial("unix", roundTripper.path, roundTripper.tlsConfig)
 		if err != nil {
 			return nil, err
-		}
-		if conn == nil {
-			return nil, errors.New("net/http: Transport.DialTLS returned (nil, nil)")
 		}
 		if tc, ok := conn.(*tls.Conn); ok {
 			// Handshake here, in case DialTLS didn't. TLSNextProto below

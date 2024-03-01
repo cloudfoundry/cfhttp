@@ -38,6 +38,7 @@ var _ = Describe("CfHttp", func() {
 			client := cfhttp.NewUnixClient("socketPath")
 			Expect(client.Timeout).To(Equal(timeout))
 			transport := client.Transport.(*http.Transport)
+			//lint:ignore SA1019 - this is testing unix sockets which don't support DialContext
 			Expect(transport.Dial).NotTo(BeNil())
 		})
 	})
