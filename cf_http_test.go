@@ -38,7 +38,7 @@ var _ = Describe("CfHttp", func() {
 			client := cfhttp.NewUnixClient("socketPath")
 			Expect(client.Timeout).To(Equal(timeout))
 			transport := client.Transport.(*http.Transport)
-			Expect(transport.Dial).NotTo(BeNil())
+			Expect(transport.DialContext).NotTo(BeNil())
 		})
 	})
 
