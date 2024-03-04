@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d
 	github.com/onsi/ginkgo/v2 v2.15.0
-	github.com/onsi/gomega v1.30.0
+	github.com/onsi/gomega v1.31.1
 )
 
 require (
