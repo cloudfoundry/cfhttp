@@ -1,6 +1,7 @@
 package cfhttp
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
@@ -10,8 +11,6 @@ import (
 	"os"
 	"sync/atomic"
 	"time"
-
-	"code.cloudfoundry.org/cfhttp/unix_transport"
 )
 
 var SUPPORTED_CIPHER_SUITES = []uint16{
@@ -39,11 +38,23 @@ func NewClient() *http.Client {
 // Deprecated: Use NewClient in code.cloudfoundry.org/cfhttp/v2
 func NewUnixClient(socketPath string) *http.Client {
 	return &http.Client{
-		Transport: unix_transport.NewWithDial(socketPath,
-			(&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 0 * time.Second,
-			}).Dial),
+		Transport: &http.Transport{
+			DialContext: func(ctx context.Context, _, _ string) (net.Conn, error) {
+				conn, err := net.Dial("unix", socketPath)
+				if err != nil {
+					return nil, err
+				}
+				cancel := ctx.Done()
+				go func() {
+					<-cancel
+					if conn != nil {
+						conn.Close()
+					}
+				}()
+
+				return conn, nil
+			},
+		},
 		Timeout: time.Duration(atomic.LoadInt64((*int64)(&config.Timeout))),
 	}
 }
