@@ -3,13 +3,18 @@ package cfhttp_test
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
+	"net"
 	"net/http"
+	"net/http/httptest"
 	"time"
 
 	"code.cloudfoundry.org/cfhttp"
 
+	uuid "github.com/nu7hatch/gouuid"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/ghttp"
 )
 
 var _ = Describe("CfHttp", func() {
@@ -34,12 +39,51 @@ var _ = Describe("CfHttp", func() {
 	})
 
 	Describe("NewUnixClient", func() {
+		var socket string
+		var unixSocketListener net.Listener
+		var unixSocketServer *ghttp.Server
+
+		BeforeEach(func() {
+			uuid, err := uuid.NewV4()
+			Expect(err).NotTo(HaveOccurred())
+
+			socket = fmt.Sprintf("/tmp/%s.sock", uuid)
+			unixSocketListener, err = net.Listen("unix", socket)
+			Expect(err).NotTo(HaveOccurred())
+
+			unixSocketServer = ghttp.NewUnstartedServer()
+
+			unixSocketServer.HTTPTestServer = &httptest.Server{
+				Listener: unixSocketListener,
+				Config:   &http.Server{Handler: unixSocketServer},
+			}
+
+			unixSocketServer.AppendHandlers(
+				ghttp.CombineHandlers(
+					ghttp.VerifyRequest("GET", "/_ping"),
+					ghttp.RespondWith(http.StatusOK, "true"),
+				),
+			)
+
+			unixSocketServer.Start()
+		})
+		AfterEach(func() {
+			unixSocketServer.Close()
+			unixSocketListener.Close()
+		})
+
 		It("returns an http client", func() {
 			client := cfhttp.NewUnixClient("socketPath")
 			Expect(client.Timeout).To(Equal(timeout))
 			transport := client.Transport.(*http.Transport)
 			//lint:ignore SA1019 - this is testing unix sockets which don't support DialContext
-			Expect(transport.Dial).NotTo(BeNil())
+			Expect(transport.DialContext).NotTo(BeNil())
+		})
+		It("the returned client can make requests against a unix socket", func() {
+			client := cfhttp.NewUnixClient(socket)
+			resp, err := client.Get("http://unix/_ping")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(resp.StatusCode).To(Equal(http.StatusOK))
 		})
 	})
 
